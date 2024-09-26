@@ -1,3 +1,9 @@
+# repo specific
+credentials/*
+templates/*.htm
+templates/*.rtf
+templates/*.txt
+
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,visualstudiocode,terraform,windows,linux,macos,helm
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,visualstudiocode,terraform,windows,linux,macos,helm
 
