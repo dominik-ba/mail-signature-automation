@@ -1,0 +1,20 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+# trim_trailing_whitespace = true #overrides markdwon's br
+
+[{*.tf, *.yml, *.yaml, *.rb, *.json, *.ts, *.js, *.tpl}]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+[{*.py, *.sh}]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
