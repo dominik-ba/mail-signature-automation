@@ -3,6 +3,7 @@ credentials/*
 templates/*.htm
 templates/*.rtf
 templates/*.txt
+token.pickle
 
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,visualstudiocode,terraform,windows,linux,macos,helm
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,visualstudiocode,terraform,windows,linux,macos,helm
