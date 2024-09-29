@@ -1,7 +1,8 @@
 import os
 import os
-import datetime
+from datetime import datetime, timezone
 import pickle
+import argparse
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -27,7 +28,7 @@ def get_calendar_service():
     return build('calendar', 'v3', credentials=creds)
 
 def find_next_urlaub_event(service):
-    now = datetime.datetime.now(datetime.timezone.utc).isoformat() # 'Z' indicates UTC time
+    now = datetime.now(timezone.utc).isoformat() # 'Z' indicates UTC time
     print(now)
     events_result = service.events().list(calendarId='primary', timeMin=now,
                                         maxResults=10, singleEvents=True,
@@ -41,7 +42,9 @@ def find_next_urlaub_event(service):
 
 
 def find_next_urlaub_dates(event):
-    return event['start'].get('dateTime', event['start'].get('date')), event['end'].get('dateTime', event['end'].get('date'))
+    start = datetime.strptime(event['start'].get('date'), '%Y-%m-%d')
+    end = datetime.strptime(event['end'].get('date'), '%Y-%m-%d')
+    return start, end
 
 
 def read_template(signature_name, ext):
@@ -51,14 +54,14 @@ def read_template(signature_name, ext):
     if ext == 'txt':
         encoding = 'utf-16-le'
 
-    with open(path, 'r', encoding=encoding) as f:
+    with open(path, 'r', encoding=encoding) as f: # todo check encoding
         return f.read()
 
 # function to modify the template - replacing dd1 mm1 yy1 dd2 mm2 yy2 with parameters
 def modify_template(template, dd1, mm1, yy1, dd2, mm2, yy2):
     return template.replace("dd1", dd1).replace("mm1", mm1).replace("yy1", yy1).replace("dd2", dd2).replace("mm2", mm2).replace("yy2", yy2)
 
-def update_signature(signature_name):
+def update_signature(signature_name, ext, content):
     # Path to the signatures folder
     signatures_path = os.path.expanduser(r'~\AppData\Roaming\Microsoft\Signatures')
 
@@ -68,29 +71,34 @@ def update_signature(signature_name):
     signatures['rtf'] = os.path.join(signatures_path, f'{signature_name}.rtf')
     signatures['txt'] = os.path.join(signatures_path, f'{signature_name}.txt')
 
-    for ext, file in signatures.items():
-        if not os.path.exists(file):
-            continue
-        # # Write the new content to the HTML file
-        # print(f"Updating {file}...")
-        # with open(file, 'w', encoding='utf-8') as f:
-        #f.write(read_template(template_file))
-        # update...
+    if not os.path.exists(signatures[ext]):
+        print(f"Signature file {signatures[ext]} does not exist.")
+        return
+    # Write the new content to the HTML file
+    print(f"Updating {signatures[ext]}...")
+    with open(signatures[ext], 'w', encoding='utf-8') as f: #todo look at encoding
+        f.write(content)
 
 
-def algorithm(signature_name):
-    extensions = ['htm']#, 'rtf', 'txt']
+def algorithm(signature_name, start, end):
+    extensions = ['htm']#, 'rtf', 'txt'] # todo add all file types
     for ext in extensions:
         content = read_template(signature_name, ext)
-        content = modify_template(content, "01", "01", "24", "31", "12", "24")
-        #print(content)
-        #update_signature(signature_name, content)
+        content = modify_template(content, str(start.day), str(start.month), str(start.year), str(end.day), str(end.month), str(end.year))
+        print(content)
+        update_signature(signature_name, ext, content)
 
 
 if __name__ == "__main__":
+    #parsing argparse for signature name
+    parser = argparse.ArgumentParser()
+    parser.add_argument("name", help="Name of the signature")
+    args = parser.parse_args()
+    name = args.name
+
     service = get_calendar_service()
     next_event = find_next_urlaub_event(service)
     if next_event:
         start, end = find_next_urlaub_dates(next_event)
         print(f"Next 'urlaub' event is from {start} to {end}")
-    algorithm("def")
+    algorithm(name, start, end)
