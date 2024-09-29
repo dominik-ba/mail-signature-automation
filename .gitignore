@@ -1,5 +1,5 @@
 # repo specific
-credentials/*
+credentials/*.json*
 templates/*.htm
 templates/*.rtf
 templates/*.txt
