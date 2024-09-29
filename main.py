@@ -20,14 +20,15 @@ def get_calendar_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file('credentials/credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
     return build('calendar', 'v3', credentials=creds)
 
 def find_next_urlaub_event(service):
-    now = datetime.datetime.now(datetime.timezone.utc).isoformat() + 'Z'  # 'Z' indicates UTC time
+    now = datetime.datetime.now(datetime.timezone.utc).isoformat() # 'Z' indicates UTC time
+    print(now)
     events_result = service.events().list(calendarId='primary', timeMin=now,
                                         maxResults=10, singleEvents=True,
                                         orderBy='startTime').execute()
@@ -35,8 +36,13 @@ def find_next_urlaub_event(service):
 
     for event in events:
         if event['summary'].lower().startswith('urlaub'):
-            return event['start'].get('dateTime', event['start'].get('date'))
+            return event
     return None
+
+
+def find_next_urlaub_dates(event):
+    return event['start'].get('dateTime', event['start'].get('date')), event['end'].get('dateTime', event['end'].get('date'))
+
 
 def read_template(signature_name, ext):
     path = os.path.join(os.path.dirname(__file__), 'templates', f"{signature_name}.{ext}")
@@ -83,7 +89,8 @@ def algorithm(signature_name):
 
 if __name__ == "__main__":
     service = get_calendar_service()
-    next_event_date = find_next_urlaub_event(service)
-    if next_event_date:
-        print(f"Next 'urlaub' event is on: {next_event_date}")
+    next_event = find_next_urlaub_event(service)
+    if next_event:
+        start, end = find_next_urlaub_dates(next_event)
+        print(f"Next 'urlaub' event is from {start} to {end}")
     algorithm("def")
