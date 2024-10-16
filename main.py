@@ -29,7 +29,7 @@ def get_calendar_service():
 
 def find_next_urlaub_event(service):
     now = datetime.now(timezone.utc).isoformat() # 'Z' indicates UTC time
-    print(now)
+    print(f"Now: {now}")
     events_result = service.events().list(calendarId='primary', timeMin=now,
                                         maxResults=10, singleEvents=True,
                                         orderBy='startTime').execute()
@@ -54,7 +54,7 @@ def read_template(signature_name, ext):
     if ext == 'txt':
         encoding = 'utf-16-le'
 
-    with open(path, 'r', encoding=encoding) as f: # todo check encoding
+    with open(path, 'r', encoding=encoding) as f:
         return f.read()
 
 # function to modify the template - replacing dd1 mm1 yy1 dd2 mm2 yy2 with parameters
@@ -76,22 +76,28 @@ def update_signature(signature_name, ext, content):
         return
     # Write the new content to the HTML file
     print(f"Updating {signatures[ext]}...")
-    with open(signatures[ext], 'w', encoding='utf-8') as f: #todo look at encoding
+
+    encoding= 'cp1252'
+    if ext == 'txt':
+        encoding = 'utf-16-le'
+    with open(signatures[ext], 'w', encoding=encoding) as f:
         f.write(content)
 
 
 def algorithm(signature_name, start, end):
-    extensions = ['htm']#, 'rtf', 'txt'] # todo add all file types
+    extensions = ['htm', 'rtf', 'txt']
     for ext in extensions:
         content = read_template(signature_name, ext)
         content = modify_template(content, str(start.day), str(start.month), str(start.year), str(end.day), str(end.month), str(end.year))
-        print(content)
+        #print(content)
         update_signature(signature_name, ext, content)
 
 
 if __name__ == "__main__":
     #parsing argparse for signature name
     parser = argparse.ArgumentParser()
+    # adjust name to grant the possibility to provide more then one name
+
     parser.add_argument("name", help="Name of the signature")
     args = parser.parse_args()
     name = args.name
@@ -101,4 +107,6 @@ if __name__ == "__main__":
     if next_event:
         start, end = find_next_urlaub_dates(next_event)
         print(f"Next 'urlaub' event is from {start} to {end}")
-    algorithm(name, start, end)
+        algorithm(name, start, end)
+    else:
+        print(f"Found no 'urlaub' event")
