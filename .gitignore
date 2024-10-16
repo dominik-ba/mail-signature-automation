@@ -1,8 +1,6 @@
 # repo specific
 credentials/*.json*
-templates/*.htm
-templates/*.rtf
-templates/*.txt
+templates/
 token.pickle
 
 # Created by https://www.toptal.com/developers/gitignore/api/helm,linux,macos,python,windows,intellij,terraform,visualstudiocode
