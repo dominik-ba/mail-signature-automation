@@ -1,6 +1,6 @@
 import os
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import pickle
 import argparse
 
@@ -106,7 +106,8 @@ if __name__ == "__main__":
     next_event = find_next_urlaub_event(service)
     if next_event:
         start, end = find_next_urlaub_dates(next_event)
-        print(f"Next 'urlaub' event is from {start} to {end}")
-        algorithm(name, start, end)
+        last_day = end - timedelta(days=1)
+        print(f"Next 'urlaub' event is from {str(start.day)}.{str(start.month)}.{str(start.year)} to {str(last_day.day)}.{str(last_day.month)}.{str(last_day.year)} (incl.)")
+        algorithm(name, start, last_day)
     else:
         print(f"Found no 'urlaub' event")
