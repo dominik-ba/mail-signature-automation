@@ -19,7 +19,11 @@ def get_calendar_service():
             creds = pickle.load(token)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+            try:
+                creds.refresh(Request())
+            except:
+                flow = InstalledAppFlow.from_client_secrets_file('credentials/credentials.json', SCOPES)
+                creds = flow.run_local_server(port=0)
         else:
             flow = InstalledAppFlow.from_client_secrets_file('credentials/credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
@@ -31,7 +35,7 @@ def find_next_urlaub_event(service):
     now = datetime.now(timezone.utc).isoformat() # 'Z' indicates UTC time
     print(f"Now: {now}")
     events_result = service.events().list(calendarId='primary', timeMin=now,
-                                        maxResults=10, singleEvents=True,
+                                        maxResults=20, singleEvents=True,
                                         orderBy='startTime').execute()
     events = events_result.get('items', [])
 
