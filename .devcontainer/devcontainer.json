@@ -19,4 +19,9 @@
 
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   // "remoteUser": "root"
+
+  // Mount lokaler Windows-Ordner in den Container
+  ,"mounts": [
+    "source=C:/Users/dbartsch/AppData/Roaming/Microsoft/Signatures,target=/workspace/signatures,type=bind,consistency=cached"
+  ]
 }
