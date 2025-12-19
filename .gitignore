@@ -1,6 +1,7 @@
 # repo specific
 credentials/*.json*
-templates/
+templates/*
+!templates/.gitkeep
 token.pickle
 *.pickle
 run.sh

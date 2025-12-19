@@ -73,7 +73,8 @@ def read_template(signature_name, ext):
 
 
 def modify_template(template, dd1, mm1, yy1, dd2, mm2, yy2):
-    return template.replace("dd1", dd1).replace("mm1", mm1).replace("yy1", yy1).replace("dd2", dd2).replace("mm2", mm2).replace("yy2", yy2)
+    new_date = f"{dd1}.{mm1}.{yy1}-{dd2}.{mm2}.{yy2}"
+    return template.replace("DD.MM.YYYY-DD.MM.YYYY", new_date)
 
 
 def update_signature(signature_name, ext, content, signatures_path):
@@ -90,7 +91,7 @@ def update_signature(signature_name, ext, content, signatures_path):
     # Write the new content to the HTML file
     print(f"Updating {signatures[ext]}...")
 
-    encoding = 'cp1252'
+    encoding = 'utf-8'
     if ext == 'txt':
         encoding = 'utf-16-le'
     with open(signatures[ext], 'w', encoding=encoding) as f:
@@ -101,6 +102,13 @@ def algorithm(signature_name, ext, start, end):
     content = read_template(signature_name, ext)
     content = modify_template(content, str(start.day), str(start.month), str(
         start.year), str(end.day), str(end.month), str(end.year))
+    # print(content)
+    return content
+
+
+def blank(signature_name, ext):
+    content = read_template(signature_name, ext)
+    content = modify_template(content, "-", "", "", "-", "", "")
     # print(content)
     return content
 
@@ -124,14 +132,18 @@ if __name__ == "__main__":
 
     service = get_calendar_service()
     next_event = find_next_urlaub_event(service)
+    extensions = ['htm', 'rtf', 'txt']
     if next_event:
         start, end = find_next_urlaub_dates(next_event)
         last_day = end - timedelta(days=1)
         print(
             f"Next 'urlaub' event is from {str(start.day)}.{str(start.month)}.{str(start.year)} to {str(last_day.day)}.{str(last_day.month)}.{str(last_day.year)} (incl.)")
-        extensions = ['htm', 'rtf', 'txt']
         for ext in extensions:
             content = algorithm(name, ext, start, last_day)
             update_signature(name, ext, content, signatures_path)
     else:
         print(f"Found no 'urlaub' event")
+
+        for ext in extensions:
+            content = blank(name, ext)
+            update_signature(name, ext, content, signatures_path)

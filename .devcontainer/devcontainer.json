@@ -22,6 +22,6 @@
 
   // Mount lokaler Windows-Ordner in den Container
   ,"mounts": [
-    "source=C:/Users/dbartsch/AppData/Roaming/Microsoft/Signatures,target=/workspace/signatures,type=bind,consistency=cached"
+    "source=${localEnv:APPDATA}/Microsoft/Signatures,target=/workspace/signatures,type=bind,consistency=cached"
   ]
 }
