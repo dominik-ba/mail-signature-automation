@@ -71,10 +71,14 @@ def read_template(signature_name, ext):
 
 # function to modify the template - replacing dd1 mm1 yy1 dd2 mm2 yy2 with parameters
 
-
+# modify template with date range
 def modify_template(template, dd1, mm1, yy1, dd2, mm2, yy2):
     new_date = f"{dd1}.{mm1}.{yy1}-{dd2}.{mm2}.{yy2}"
     return template.replace("DD.MM.YYYY-DD.MM.YYYY", new_date)
+
+# funnctionn to modify the the template when no vacation is planned
+def modify_template_no_vacation(template):
+    return template.replace("DD.MM.YYYY-DD.MM.YYYY", "-")
 
 
 def update_signature(signature_name, ext, content, signatures_path):
@@ -108,7 +112,7 @@ def algorithm(signature_name, ext, start, end):
 
 def blank(signature_name, ext):
     content = read_template(signature_name, ext)
-    content = modify_template(content, "-", "", "", "-", "", "")
+    content = modify_template_no_vacation(content)
     # print(content)
     return content
 
